@@ -218,3 +218,4 @@ endfunction
 
 " when ) is pressed runs generator
 inoremap ) )<C-\><C-O>:call GetType()<CR>
+inoremap { {<CR>}<Esc>ko
