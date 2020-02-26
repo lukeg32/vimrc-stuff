@@ -92,7 +92,7 @@ set statusline+=%#StatusLine#
 set statusline+=\ %p%%\ %l:%c
 set statusline+=\ 
 
-filetype plugin on
+" filetype plugin on
 ""
 
 set nocompatible
