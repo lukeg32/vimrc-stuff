@@ -92,11 +92,6 @@ set statusline+=%#StatusLine#
 set statusline+=\ %p%%\ %l:%c
 set statusline+=\ 
 
-if exists("b:did_ftplugin")
-    filetype plugin on
-else
-    let b:did_ftplugin = 0
-endif
 
 ""
 
@@ -123,6 +118,13 @@ endfunction
 """"""""
 " how many times we have loaded a file to vimrc
 let g:load = 0
+
+" loads the vim file type helpers
+if exists("b:did_ftplugin")
+    let NoNoNo = 'No'
+else
+    filetype plugin on
+endif
 
 " loads files based off of the extention
 function! FileLoader()
