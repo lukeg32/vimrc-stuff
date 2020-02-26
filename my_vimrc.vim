@@ -179,7 +179,8 @@ set splitright
 " change slip with \w
 nnoremap <leader>w 
 
-nnoremap <leader>W gt
+nnoremap H gt
+nnoremap L gT
 nnoremap <leader>i :call Indent()<CR>
 nnoremap <leader>r :so ~/.vimrc<CR>
 exec 'nnoremap <leader>s :mks! ' . v:this_session . '<CR>'

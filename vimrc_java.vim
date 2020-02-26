@@ -30,7 +30,7 @@ function! GetParam(Params)
     return a:Params         " return params
 endfunction
 
-function! GetParams(return)
+function! MakeComments(return)
     let Params = []                " make list, init i
 
     let i = 0
@@ -78,7 +78,7 @@ function! ConstructorComment()
                            " v saves everything inside the () inclusive, to @m
     normal 03wv%"my
 
-    call GetParams(0)              " calls GetParams with returns being false
+    call MakeComments(0)              " calls MakeComments with returns being false
 
     let @m = m                     " @m won't have changed
 
@@ -86,14 +86,14 @@ endfunction
 
 function! MethodComment(return, static)
     let m = @m                     " temp var so @m isn't lost
-
+    
     if a:static                    " go on word futher b/c of static
         normal 05wv%"my
     else                           "^ V saves params inside (), to @m
         normal 04wv%"my
     endif
 
-    call GetParams(a:return) " GetParams will make docstring, giving return
+    call MakeComments(a:return) " MakeComments will make docstring, giving return
 
     let @m = m               " set to temp to tie loose ends
 
@@ -139,9 +139,13 @@ function! GetAboveBelow()
 endfunction
 
 function! GetType()
+    let coords = getcurpos()
     let m = @m                 " gets the identifiers of this line
     normal "myy
     let continue = Find(@m, "(")
+
+    let line = coords[1]
+    let col = coords[2]
 
     let list = GetAboveBelow()
     let above = list[0]
@@ -223,7 +227,7 @@ function! GetType()
             normal O-$x$
         endif
     else                       " resets cursor if not generating
-        normal $F)l
+       call cursor(line, col)
     endif
 endfunction
 " <leader> = \
