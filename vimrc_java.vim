@@ -43,19 +43,31 @@ function! GetParams(return)
         endwhile
     endif
 
-    normal O/** **
+    if b:did_ftplugin
+        normal O/**
+    else
+        normal O/** **
+    endif
                                    " ^ makes the doc header
     let m = @m                     " temp var to not lose @m
 
     for i in Params
         let @m = i                 " set @m to what we want to paste in
-        normal a @param "mpa*
+        if b:did_ftplugin
+            normal a @param "mpa
+        else
+            normal a @param "mpa*
+        endif
     endfor " ^ pastes each param in, proper formatting
 
     let @m = m                     " restore @m
 
     if a:return                    " adds a return part if we asked for one
-        normal a @return*
+        if b:did_ftplugin
+            normal a @return
+        else
+            normal a @return*
+        endif
     endif
                                    " v closes out the doc string
     normal a/
@@ -128,7 +140,6 @@ endfunction
 
 function! GetType()
     let m = @m                 " gets the identifiers of this line
-    normal mA
     normal "myy
     let continue = Find(@m, "(")
 

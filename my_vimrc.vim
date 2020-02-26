@@ -92,7 +92,12 @@ set statusline+=%#StatusLine#
 set statusline+=\ %p%%\ %l:%c
 set statusline+=\ 
 
-" filetype plugin on
+if exists("b:did_ftplugin")
+    filetype plugin on
+else
+    let b:did_ftplugin = 0
+endif
+
 ""
 
 set nocompatible
