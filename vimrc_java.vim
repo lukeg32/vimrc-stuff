@@ -1,9 +1,9 @@
 let g:made = '/**'
-let g:make =  ['i/**']
-let g:make += ['i * Program#: TODO']
-let g:make += ['i * 2020-MM-DD']
-let g:make += ['i * @author lgantar19@georgefox.edu']
-let g:make += ['i */']
+let g:make =  ['i/**o']
+let g:make += ['i Program#: TODOo']
+let g:make += ['i 2020-MM-DDo']
+let g:make += ['i @author lgantar19@georgefox.eduo']
+let g:make += ['i*/']
 let g:make += ['ipublic class "mp']
 let g:make += ['o{']
 let g:make += ['o}O-x$']
@@ -128,6 +128,7 @@ endfunction
 
 function! GetType()
     let m = @m                 " gets the identifiers of this line
+    normal mA
     normal "myy
     let continue = Find(@m, "(")
 
@@ -211,7 +212,7 @@ function! GetType()
             normal O-$x$
         endif
     else                       " resets cursor if not generating
-        normal /)$
+        normal $F)l
     endif
 endfunction
 " <leader> = \
