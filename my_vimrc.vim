@@ -144,7 +144,7 @@ function! CheckFile()
     let filename = expand("%:r")
     let type = expand("%:e")
     if (g:made != getline('1'))
-        exe "-1read ~/.vim/skeletion/".type.".skel"
+        exe "-1read ~/.vim/skeleton/".type.".skel"
         exe ":%s/NAME/".filename
         exe "normal! 2jA"
     endif
@@ -186,7 +186,11 @@ nnoremap H gT
 nnoremap L gt
 nnoremap <leader>i :call Indent()<CR>
 nnoremap <leader>r :so ~/.vimrc<CR>
-exec 'nnoremap <leader>s :mks! ' . v:this_session . '<CR>'
+let g:sessions_dir = "~/.vim/sessions"
+exec 'nnoremap <leader>S :mks! ' . v:this_session . '<CR>'
+exec 'nnoremap <leader>s :mks! ' . g:sessions_dir . '/*.vim<C-D><BS><BS><BS><BS><BS>'
+
+exec 'nnoremap <leader>ss :so ' . g:sessions_dir . '/*.vim<C-D><BS><BS><BS><BS><BS>'
 
 " command! -nargs=1 jcon call s:MyFunc(<f-args>)
 
