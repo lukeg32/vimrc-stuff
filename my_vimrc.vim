@@ -119,6 +119,9 @@ endfunction
 " how many times we have loaded a file to vimrc
 let g:load = 0
 
+if v:this_session != ""
+    let b:did_ftplugin = 0
+endif
 " loads the vim file type helpers
 if exists("b:did_ftplugin")
     let NoNoNo = 'No'
@@ -179,8 +182,8 @@ set splitright
 " change slip with \w
 nnoremap <leader>w 
 
-nnoremap H gt
-nnoremap L gT
+nnoremap H gT
+nnoremap L gt
 nnoremap <leader>i :call Indent()<CR>
 nnoremap <leader>r :so ~/.vimrc<CR>
 exec 'nnoremap <leader>s :mks! ' . v:this_session . '<CR>'
