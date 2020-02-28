@@ -18,6 +18,8 @@ set shiftwidth=4 expandtab autoindent smartindent
 set listchars=nbsp:~,tab:->,trail:-
 set list
 
+set mouse=a
+
 " VIDEO:
 " Provides tab-completion for all file related tasks also fuzzy
 set path+=**
