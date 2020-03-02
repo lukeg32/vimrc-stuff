@@ -161,7 +161,7 @@ function! GetType()
         let method = 1                    " only false if filename found
         let constructor = 0               " true if filename found
         let invalid = 0                   " forces to quit
-        let static = 0                    " will acount for static when reading
+        let extras = 0                    " accouts for static/abstract
         let publicprivate = 1             " must find this to not be invalid
         let filename = expand("%:r")      " filename
         let identifiers = split(@m)       " the identifiers in a list
@@ -186,12 +186,12 @@ function! GetType()
             let invalid = 1
         endif
 
-        if "static" == i              " make generator account for static
-            let static = 1
+        if "static" == i || "abstract" == i "account for abstract/static method
+            let extras = 1
         endif
 
-        if "public" == i || "private" == i
-            let publicprivate = 0     " find public/private in identifiers
+        if "public" == i || "private" == i || "protected" == i
+            let publicprivate = 0     " find public/private/protected ids
 
         endif
 
@@ -216,7 +216,7 @@ function! GetType()
         endif
 
         if method
-            call MethodComment(return, static)
+            call MethodComment(return, extras)
         endif
                                " makes the tabs stay and cursor proper pos
         normal jo{}O-$
@@ -230,10 +230,45 @@ function! GetType()
        call cursor(line, col)
     endif
 endfunction
+
+
+function! Process()
+    let m = @m
+    normal "myy
+    let ids = split(@m)
+
+    if ids[0] 
+
+    let i = 0
+    for id in ids
+        if id == "p"
+            ids[i] = "public"
+
+        elseif id == "pr"
+            ids[i] = "private"
+
+        elseif id == "P"
+            ids[i] = "protected"
+
+        elseif id = "s"
+            ids[i] = "static"
+
+        elseif id = "S"
+            ids[i] = "String"
+
+        elseif id = "
+
+    let @m = m
+endfunction
+
 " <leader> = \
 
 " when ) is pressed runs generator
 inoremap ) )<C-\><C-O>:call GetType()<CR>
+" when \ is pressed runs processor
+"inoremap <leader>make <C-\><C-O>:call Process()<CR>
 inoremap { {<CR>}<Esc>ko
-inoremap sout<leader> System.out.println(
+inoremap <leader>out System.out.println(<ESC>
+
+"nnoremap <leader>r :so ~/.vimrc<CR> | :so ~/.vim/custom/vimrc_java.vim<CR>
 
