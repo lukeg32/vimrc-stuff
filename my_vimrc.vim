@@ -5,7 +5,7 @@ set shellcmdflag=-ic
 
 set hls
 set tw=79
-set colorcolumn=79
+set colorcolumn=80
 hi ColorColumn ctermbg=grey guibg=grey
 set fo+=t
 set fo-=l
@@ -19,6 +19,7 @@ set listchars=nbsp:~,tab:->,trail:-
 set list
 
 set mouse=a
+set ignorecase smartcase
 
 " VIDEO:
 " Provides tab-completion for all file related tasks also fuzzy
@@ -168,6 +169,7 @@ if ! g:load
     call FileLoader()
 endif
 """""""""
+"autocmd FileType c,cpp,java,php autocmd BufWritePre <buffer> %s/\s\+$//e :retab
 
 " <leader> = \
 
@@ -187,6 +189,7 @@ nnoremap <leader>w 
 nnoremap H gT
 nnoremap L gt
 nnoremap <leader>i :call Indent()<CR>
+"nnoremap <C-S> :w<CR>
 nnoremap <leader>r :so ~/.vimrc<CR>
 let g:sessions_dir = "~/.vim/sessions"
 exec 'nnoremap <leader>S :mks! ' . v:this_session . '<CR>'
