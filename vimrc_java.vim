@@ -232,36 +232,121 @@ function! GetType()
 endfunction
 
 
-function! Process()
-    let m = @m
-    normal "myy
-    let ids = split(@m)
+" <leader> = \
+let s:ImportDic = { 'ArrayList<': 'java.util.ArrayList;', 'Scanner(': 'java.util.Scanner;', 'File(': 'java.io.File;', 'FileNotFoundException': 'java.io.FileNotFoundException;', 'InputMismatchException': 'java.util.InputMismatchException;', 'NoSuchElementException': 'java.util.NoSuchElementException;', 'Arrays.': 'java.util.Arrays;'}
 
-    if ids[0] 
+function! GetKeys(ImportDic)
+    let all = items(a:ImportDic)
+    let l:new = []
 
-    let i = 0
-    for id in ids
-        if id == "p"
-            ids[i] = "public"
+    for i in all
+        call add(l:new, i[0])
+    endfor
 
-        elseif id == "pr"
-            ids[i] = "private"
-
-        elseif id == "P"
-            ids[i] = "protected"
-
-        elseif id = "s"
-            ids[i] = "static"
-
-        elseif id = "S"
-            ids[i] = "String"
-
-        elseif id = "
-
-    let @m = m
+    return new
 endfunction
 
-" <leader> = \
+function! GetImports(all)
+    let success = 0
+    let made = []
+    let both = items(a:all)
+
+    for i in both
+        let success = search(i[1])
+        if success != 0
+            call add(made, i[0])
+        endif
+    endfor
+
+    return made
+endfunction
+
+function! ToImport(keys)
+    let success = 0
+    let toMake = []
+
+    for i in a:keys
+        let success = search(i)
+        if success != 0
+            call add(toMake, i)
+        endif
+    endfor
+
+    return toMake
+endfunction
+
+function! MakeImports(keys, new)
+    if a:new == "False"
+        normal! gg4jo
+    else
+        normal! gg
+        let line = search("import")
+        exec "normal! " . line . "G"
+    endif
+
+    for i in a:keys
+        exec "normal! Oimport " . s:ImportDic[i]
+    endfor
+
+endfunction
+
+function! RmDups(make, made)
+    let noDups = []
+    for i in a:make
+        let pass = 0
+
+        for j in a:made
+            if i == j
+                let pass = 1
+            endif
+        endfor
+
+        if pass == 0
+            call add(noDups, i)
+        endif
+    endfor
+
+    return noDups
+endfunction
+
+function! Imports()
+    let coords = getcurpos()
+    let line = coords[1]
+    let col = coords[2]
+    let keys = GetKeys(s:ImportDic)
+    let toMake = []
+    let made = []
+
+    let toMake = ToImport(keys)
+    let made = GetImports(s:ImportDic)
+
+    let noDups = []
+    let doAnything = "True"
+    if (len(toMake) <= 0)
+        let doAnything = "False"
+    endif
+    if (len(made) <= 0)
+        let doAnything = "False"
+        let noDups = toMake
+    endif
+
+    if doAnything == "True"
+        let noDups = RmDups(toMake, made)
+    endif
+
+    if len(noDups) > 0
+        let newLine = "False"
+        if len(made) > 0
+            let newLine = "True"
+        endif
+
+        call MakeImports(noDups, newLine)
+    endif
+
+    call cursor(line, col)
+endfunction
+
+command Import :call Imports()
 
 " when ) is pressed runs generator
 inoremap ) )<C-\><C-O>:call GetType()<CR>
