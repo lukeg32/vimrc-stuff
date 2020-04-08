@@ -4,9 +4,9 @@ set tabstop=4
 set shellcmdflag=-ic
 
 set hls
-" set tw=79
-" set colorcolumn=80
-" hi ColorColumn ctermbg=grey guibg=grey
+set tw=79
+set colorcolumn=80
+hi ColorColumn ctermbg=grey guibg=grey
 set fo+=t
 set fo-=l
 
@@ -134,15 +134,10 @@ endif
 
 " loads files based off of the extention
 function! FileLoader()
-    "echo "did the thing"
     let g:load = 1
     let filetype = expand("%:e")
     if filetype == "java"
         source ~/.vim/custom/vimrc_java.vim
-        set formatoptions+=t
-        set tw=79
-        set colorcolumn=80
-        hi ColorColumn ctermbg=grey guibg=grey
     endif
 endfunction
 
