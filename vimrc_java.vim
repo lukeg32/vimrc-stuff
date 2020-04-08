@@ -10,6 +10,7 @@ let g:make += ['o}O-x$']
 
 let g:success = 'true'
 
+
 function! Length()
     let l =  len(split(@m, ','))
     if split(@m, ",") == ["()"]
@@ -233,8 +234,17 @@ endfunction
 
 
 " <leader> = \
-let s:ImportDic = { 'ArrayList<': 'java.util.ArrayList;', 'Scanner(': 'java.util.Scanner;', 'File(': 'java.io.File;', 'FileNotFoundException': 'java.io.FileNotFoundException;', 'InputMismatchException': 'java.util.InputMismatchException;', 'NoSuchElementException': 'java.util.NoSuchElementException;', 'Arrays.': 'java.util.Arrays;'}
-
+""""""""" start of importer script
+" the dictionary that had keys=a use of a class, value=the import location with ;
+let s:ImportDic =  {'ArrayList<': 'java.util.ArrayList;'}
+let s:ImportDic['Scanner('] = 'java.util.Scanner;'
+let s:ImportDic['File('] = 'java.io.File;'
+let s:ImportDic['FileNotFoundException'] = 'java.io.FileNotFoundException;'
+let s:ImportDic['InputMismatchException'] = 'java.util.InputMismatchException;'
+let s:ImportDic['NoSuchElementException'] = 'java.util.NoSuchElementException;'
+let s:ImportDic['Arrays.'] = 'java.util.Arrays;'
+"echo s:ImportDic
+" a helper method that returns a list of keys from a dictionary
 function! GetKeys(ImportDic)
     let all = items(a:ImportDic)
     let l:new = []
@@ -246,6 +256,7 @@ function! GetKeys(ImportDic)
     return new
 endfunction
 
+" finds the values of the keys, returns a list of keys that had their value found
 function! GetImports(all)
     let success = 0
     let made = []
@@ -253,7 +264,7 @@ function! GetImports(all)
 
     for i in both
         let success = search(i[1])
-        if success != 0
+        if success != 0                     " if found value, then add key to list
             call add(made, i[0])
         endif
     endfor
@@ -261,6 +272,7 @@ function! GetImports(all)
     return made
 endfunction
 
+" finds the keys in the file, returns a list of the keys that were found
 function! ToImport(keys)
     let success = 0
     let toMake = []
@@ -275,10 +287,11 @@ function! ToImport(keys)
     return toMake
 endfunction
 
+" prints the imports to the file, next ot existing ones, or after header
 function! MakeImports(keys, new)
-    if a:new == "False"
+    if a:new == "False"                     " this means we must make the imports our self
         normal! gg4jo
-    else
+    else                                    " find those imports and add some friends
         normal! gg
         let line = search("import")
         exec "normal! " . line . "G"
@@ -286,67 +299,74 @@ function! MakeImports(keys, new)
 
     for i in a:keys
         exec "normal! Oimport " . s:ImportDic[i]
-    endfor
+    endfor                                  " this prints all imports using the keys given
 
 endfunction
 
+" this will return a list with the unique values of make relative to made
 function! RmDups(make, made)
-    let noDups = []
+    let noDups = []                         " this list will have the unique elements
+
     for i in a:make
         let pass = 0
 
         for j in a:made
             if i == j
-                let pass = 1
+                let pass = 1                " found dup, won't get added
             endif
         endfor
 
         if pass == 0
-            call add(noDups, i)
+            call add(noDups, i)             " adds to list elements that didn't have a friend in the other list
         endif
     endfor
 
     return noDups
 endfunction
 
+" the main function
 function! Imports()
     let coords = getcurpos()
-    let line = coords[1]
+    let line = coords[1]                    " saves the coords so you don't notice a thing
     let col = coords[2]
+
     let keys = GetKeys(s:ImportDic)
-    let toMake = []
+    let toMake = []                         " gets keys out of the dictionary
     let made = []
 
     let toMake = ToImport(keys)
-    let made = GetImports(s:ImportDic)
+    let made = GetImports(s:ImportDic)      " finds things to import, and what has been imported
 
     let noDups = []
     let doAnything = "True"
-    if (len(toMake) <= 0)
+    if (len(toMake) <= 0)                   " checks to make sure the lists have stuff in them
         let doAnything = "False"
     endif
+
     if (len(made) <= 0)
         let doAnything = "False"
         let noDups = toMake
     endif
 
     if doAnything == "True"
-        let noDups = RmDups(toMake, made)
+        let noDups = RmDups(toMake, made)   " if the lists have stuff, then proccess out the dups
     endif
 
     if len(noDups) > 0
         let newLine = "False"
         if len(made) > 0
-            let newLine = "True"
+            let newLine = "True"            " this will make imports be placed next to existing ones
         endif
 
-        call MakeImports(noDups, newLine)
+        call MakeImports(noDups, newLine)   " if dups has stuff, then make imports
     endif
 
     call cursor(line, col)
 endfunction
 
-command Import :call Imports()
+" creates a command that you can call, may do fancy stuff later
+command! Import :call Imports()
+"""""" end of importer script
 
 " when ) is pressed runs generator
 inoremap ) )<C-\><C-O>:call GetType()<CR>
