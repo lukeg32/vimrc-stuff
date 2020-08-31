@@ -372,7 +372,39 @@ command! Import :call Imports()
 """""" end of importer script
 
 """""""start of refactorer   
-command! BraceCheck :call GetTypeBrace()
+command! BraceCheck :call CheckConsistantBrace()
+command! ToggleBraceCheckFix :let b:fixBraces = !b:fixBraces
+command! ToggleBrace :call ToggleBraces()
+let b:fixBraces = 1
+
+function! ToggleBraces()
+    let l:coords = getcurpos()
+    let l:line = coords[1]                    " saves the coords so you don't notice a thing
+    let l:col = coords[2]
+
+    let l:old = b:fixBraces
+    let b:fixBraces = 1
+    let l:type = GetTypeBrace()
+
+
+    " switch the first braces, then check consistant will move the others
+    normal gg
+    call search('public class')
+    if l:type
+        normal J
+
+    else
+        normal $i
+
+    endif
+
+    call CheckConsistantBrace()
+
+
+
+    let b:fixBraces = l:old
+    call cursor(l:line, l:col)
+endfunction
 
 function! RmExtraWhiteSpaces()
     execute '%s/ \+$//g'
@@ -380,12 +412,20 @@ function! RmExtraWhiteSpaces()
     "execute '/}\n\n    \/\*\*'
 endfunction
 
-function! CheckConsistantBrace(type)
-    if a:type == 0
-        echo "best"
+function! CheckConsistantBrace()
+    " start at the top
+    normal gg
+    let l:coords = getcurpos()
+    let l:line = coords[1]                    " saves the coords so you don't notice a thing
+    let l:col = coords[2]
+    let l:m = @m              " temp var
+    let l:type = GetTypeBrace()
+
+    if l:type
+        echo "almond"
 
     else
-        echo "almond"
+        echo "best"
 
     endif
 
@@ -393,18 +433,19 @@ function! CheckConsistantBrace(type)
     let l:braces = GetBraceLines()
 
     " loop to each and check if almond or best
-    let l:failure = CheckBrace(l:braces, a:type)
+    let l:failure = CheckBrace(l:braces, l:type)
 
     " if you want autofix
-    if 1
-        call FixBraces(l:failure, a:type)
+    if b:fixBraces
+        call FixBraces(l:failure, l:type)
     endif
 
+
+    let @m = l:m              " restore @m
+    call cursor(l:line, l:col)
 endfunction
 
 function! GetBraceLines()
-    " start at the top
-    normal gg
     let l:braces = []
     let l:finding = 1
 
@@ -464,7 +505,10 @@ function! CheckBrace(braces, type)
         endif
 
         if l:cur !=# a:type
-            echo "You have a problem [" . l:coord[0] . ", " . l:coord[1] . "]"
+            if !b:fixBraces
+                echo "You have a problem [" . l:coord[0] . ", " . l:coord[1] . "]"
+            endif
+
             call add(l:failed, l:coord)
         endif
     endfor
@@ -507,14 +551,9 @@ endfunction
 
 
 function! GetTypeBrace()
-    let l:coords = getcurpos()
-    let l:line = coords[1]                    " saves the coords so you don't notice a thing
-    let l:col = coords[2]
-
     let l:type = 0
     let l:filename = expand("%:r")
     let l:success = search("public class " . filename)
-    let l:m = @m              " temp var
 
     " get brace or not
     normal $v"my
@@ -526,13 +565,10 @@ function! GetTypeBrace()
         let l:type = 1
     endif
 
-
-
     " check for consistency
-    call CheckConsistantBrace(l:type)
+    "call CheckConsistantBrace(l:type)
+    return l:type
 
-    let @m = l:m              " restore @m
-    call cursor(l:line, l:col)
 endfunction
 
 "function! Find()
