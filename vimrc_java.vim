@@ -372,7 +372,8 @@ command! Import :call Imports()
 """""" end of importer script
 
 """""""start of refactorer   
-command! Test :call GetTypeBrace()
+command! BraceCheck :call GetTypeBrace()
+
 function! RmExtraWhiteSpaces()
     execute '%s/ \+$//g'
     execute '%s/\t/    /g'
