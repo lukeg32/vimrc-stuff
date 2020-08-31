@@ -372,9 +372,15 @@ command! Import :call Imports()
 """""" end of importer script
 
 """""""start of refactorer   
+" make all braces like the first one
 command! BraceCheck :call CheckConsistantBrace()
-command! ToggleBraceCheckFix :let b:fixBraces = !b:fixBraces
+
+" toggle the first one, then change the others to match
 command! ToggleBrace :call ToggleBraces()
+
+" toggle the variable, if true then actually fix no outpu, else just output
+" some stuff
+command! ToggleBraceCheckFix :let b:fixBraces = !b:fixBraces
 let b:fixBraces = 1
 
 function! ToggleBraces()
@@ -400,8 +406,6 @@ function! ToggleBraces()
 
     call CheckConsistantBrace()
 
-
-
     let b:fixBraces = l:old
     call cursor(l:line, l:col)
 endfunction
@@ -421,13 +425,7 @@ function! CheckConsistantBrace()
     let l:m = @m              " temp var
     let l:type = GetTypeBrace()
 
-    if l:type
-        echo "almond"
-
-    else
-        echo "best"
-
-    endif
+    echo "You are now at " . l:type . " 0=BEST, 1=ALMOND"
 
     " get brace lines
     let l:braces = GetBraceLines()
@@ -478,8 +476,6 @@ function! GetBraceLines()
         let l:str = l:str . " [" . i[0] . ", " . i[1] . "],"
     endfor
 
-    "echo l:str
-    "let @p = l:str
     return l:braces
 endfunction
 
@@ -487,7 +483,6 @@ function! CheckBrace(braces, type)
     let l:failed = []
     let l:cur = 0
 
-    "echo a:type
     for l:coord in a:braces
         call cursor(l:coord[0], l:coord[1])
         normal V"my
@@ -498,15 +493,13 @@ function! CheckBrace(braces, type)
 
         if l:rawerer ==# ""
             let l:cur = 1
-            "echo "found almond"
         else
             let l:cur = 0
-            "echo "found best"
         endif
 
         if l:cur !=# a:type
             if !b:fixBraces
-                echo "You have a problem [" . l:coord[0] . ", " . l:coord[1] . "]"
+                echom "You have a problem [" . l:coord[0] . ", " . l:coord[1] . "]"
             endif
 
             call add(l:failed, l:coord)
@@ -551,7 +544,7 @@ endfunction
 
 
 function! GetTypeBrace()
-    let l:type = 0
+    let l:type = 1
     let l:filename = expand("%:r")
     let l:success = search("public class " . filename)
 
@@ -561,14 +554,11 @@ function! GetTypeBrace()
     " best if its found, otherwise almond
     if @m == "{"
         let l:type = 0
-    else
-        let l:type = 1
     endif
 
     " check for consistency
     "call CheckConsistantBrace(l:type)
     return l:type
-
 endfunction
 
 "function! Find()
