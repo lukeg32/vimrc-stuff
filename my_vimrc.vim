@@ -1,4 +1,5 @@
 set relativenumber
+set number
 set tabstop=4
 
 set shellcmdflag=-ic
@@ -14,6 +15,7 @@ set wildmenu
 set wildmode=full
 
 set shiftwidth=4 expandtab autoindent smartindent
+"setlocal spell!
 
 set listchars=nbsp:~,tab:->,trail:-
 set list
@@ -195,7 +197,7 @@ nnoremap H gT
 nnoremap L gt
 nnoremap <leader>i :call Indent()<CR>
 "nnoremap <C-S> :w<CR>
-nnoremap <leader>r :so ~/.vimrc<CR>
+nnoremap <leader>r :windo e! <bar> :windo so ~/.vimrc<CR>
 let g:sessions_dir = "~/.vim/sessions"
 exec 'nnoremap <leader>S :mks! ' . v:this_session . '<CR>'
 exec 'nnoremap <leader>s :mks! ' . g:sessions_dir . '/*.vim<C-D><BS><BS><BS><BS><BS>'

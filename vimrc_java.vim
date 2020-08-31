@@ -87,7 +87,7 @@ endfunction
 
 function! MethodComment(return, static)
     let m = @m                     " temp var so @m isn't lost
-    
+
     if a:static                    " go on word futher b/c of static
         normal 05wv%"my
     else                           "^ V saves params inside (), to @m
@@ -220,7 +220,9 @@ function! GetType()
             call MethodComment(return, extras)
         endif
                                " makes the tabs stay and cursor proper pos
-        normal jo{}O-$
+
+        "normal jo{}O-$ for old braces
+        normal jA {}O-$
         normal x$
 
         if return              " if return then cursor must be the line before
@@ -243,6 +245,7 @@ let s:ImportDic['FileNotFoundException'] = 'java.io.FileNotFoundException;'
 let s:ImportDic['InputMismatchException'] = 'java.util.InputMismatchException;'
 let s:ImportDic['NoSuchElementException'] = 'java.util.NoSuchElementException;'
 let s:ImportDic['Arrays.'] = 'java.util.Arrays;'
+let s:ImportDic['PrintWriter('] = 'java.io.PrintWriter;'
 "echo s:ImportDic
 " a helper method that returns a list of keys from a dictionary
 function! GetKeys(ImportDic)
@@ -368,11 +371,179 @@ endfunction
 command! Import :call Imports()
 """""" end of importer script
 
+"""""""start of refactorer   
+command! Test :call GetTypeBrace()
+function! RmExtraWhiteSpaces()
+    execute '%s/ \+$//g'
+    execute '%s/\t/    /g'
+    "execute '/}\n\n    \/\*\*'
+endfunction
+
+function! CheckConsistantBrace(type)
+    if a:type == 0
+        echo "best"
+
+    else
+        echo "almond"
+
+    endif
+
+    " get brace lines
+    let l:braces = GetBraceLines()
+
+    " loop to each and check if almond or best
+    let l:failure = CheckBrace(l:braces, a:type)
+
+    " if you want autofix
+    if 1
+        call FixBraces(l:failure, a:type)
+    endif
+
+endfunction
+
+function! GetBraceLines()
+    " start at the top
+    normal gg
+    let l:braces = []
+    let l:finding = 1
+
+    while l:finding
+        let l:success = search("{", "W")
+
+        if l:success
+            if PokeAround()
+                let l:coords = getcurpos()
+                let l:line = l:coords[1]                    " saves the coords for later
+                let l:col = l:coords[2]
+
+                " add to the good list
+                call add(l:braces, [l:line, l:col])
+            else
+                "just keep looking
+            endif
+
+            " moves down so we don't get stuck on the last one
+            normal j
+        else
+            let l:finding = 0
+
+        endif
+
+    endwhile
+
+    let l:str = ""
+    for i in l:braces
+        let l:str = l:str . " [" . i[0] . ", " . i[1] . "],"
+    endfor
+
+    "echo l:str
+    "let @p = l:str
+    return l:braces
+endfunction
+
+function! CheckBrace(braces, type)
+    let l:failed = []
+    let l:cur = 0
+
+    "echo a:type
+    for l:coord in a:braces
+        call cursor(l:coord[0], l:coord[1])
+        normal V"my
+        " i couldn't get the and to work, so erererer
+        let l:raw = substitute(@m, " ", "", "g")
+        let l:rawer = substitute(l:raw, "{", "", "g")
+        let l:rawerer = substitute(l:rawer, "\n", "", "g")
+
+        if l:rawerer ==# ""
+            let l:cur = 1
+            "echo "found almond"
+        else
+            let l:cur = 0
+            "echo "found best"
+        endif
+
+        if l:cur !=# a:type
+            echo "You have a problem [" . l:coord[0] . ", " . l:coord[1] . "]"
+            call add(l:failed, l:coord)
+        endif
+    endfor
+
+    return l:failed
+endfunction
+
+
+function! FixBraces(braces, type)
+    let l:offset = 0
+    let l:running = 1
+
+    for l:coord in a:braces
+        call cursor(l:coord[0] + offset, l:coord[1])
+
+        if a:type " best to almond
+            let l:offset = l:offset + 1
+            " get the tab length, pastes before the {
+            normal muF)%^hv0"my`uild0"mP
+        else " almond to best
+            let l:offset = l:offset - 1
+            normal kJ
+        endif
+    endfor
+endfunction
+
+
+function! PokeAround()
+    let l:good = 0
+
+    normal $v"my
+
+    " copies the last char, if { then its probably good
+    if @m ==# "{"
+        let l:good = 1
+    endif
+
+    return l:good
+endfunction
+
+
+function! GetTypeBrace()
+    let l:coords = getcurpos()
+    let l:line = coords[1]                    " saves the coords so you don't notice a thing
+    let l:col = coords[2]
+
+    let l:type = 0
+    let l:filename = expand("%:r")
+    let l:success = search("public class " . filename)
+    let l:m = @m              " temp var
+
+    " get brace or not
+    normal $v"my
+
+    " best if its found, otherwise almond
+    if @m == "{"
+        let l:type = 0
+    else
+        let l:type = 1
+    endif
+
+
+
+    " check for consistency
+    call CheckConsistantBrace(l:type)
+
+    let @m = l:m              " restore @m
+    call cursor(l:line, l:col)
+endfunction
+
+"function! Find()
+
+"endfunction
+
 " when ) is pressed runs generator
 inoremap ) )<C-\><C-O>:call GetType()<CR>
 " when \ is pressed runs processor
 "inoremap <leader>make <C-\><C-O>:call Process()<CR>
-inoremap { {<CR>}<Esc>ko
+"inoremap { {<CR>}<Esc>ko
+inoremap { {<CR>}<Esc>koaa
 inoremap <leader>out System.out.println(<ESC>
 
 "nnoremap <leader>r :so ~/.vimrc<CR> | :so ~/.vim/custom/vimrc_java.vim<CR>
