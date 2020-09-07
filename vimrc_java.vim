@@ -22,10 +22,10 @@ endfunction
 function! GetParam(Params)
     let m = @m              " temp var
     let @m = ''             " sets to empty
-    normal 2wve"myw
-    if (@m == '[]')         " if list arg, then move over one more
-        normal ve"my
-    endif
+
+    " gets arg
+    normal f lve"myf,ll
+
     call add(a:Params, @m)  " ^ goes to 1st param copies to @m <then to Params
     let @m = m              " restore @m
     return a:Params         " return params
@@ -77,7 +77,7 @@ endfunction
 function! ConstructorComment()
     let m = @m                     " temp var so @m isn't lost
                            " v saves everything inside the () inclusive, to @m
-    normal 03wv%"my
+    normal 0f(v%"my
 
     call MakeComments(0)              " calls MakeComments with returns being false
 
@@ -85,14 +85,10 @@ function! ConstructorComment()
 
 endfunction
 
-function! MethodComment(return, static)
+function! MethodComment(return)
     let m = @m                     " temp var so @m isn't lost
 
-    if a:static                    " go on word futher b/c of static
-        normal 05wv%"my
-    else                           "^ V saves params inside (), to @m
-        normal 04wv%"my
-    endif
+    normal 0f(v%"my
 
     call MakeComments(a:return) " MakeComments will make docstring, giving return
 
@@ -217,12 +213,12 @@ function! GetType()
         endif
 
         if method
-            call MethodComment(return, extras)
+            call MethodComment(return)
         endif
                                " makes the tabs stay and cursor proper pos
 
-        "normal jo{}O-$ for old braces
-        normal jA {}O-$
+        normal jo{}O-$
+        "normal jA {}O-$ for best
         normal x$
 
         if return              " if return then cursor must be the line before
@@ -380,16 +376,16 @@ command! ToggleBrace :call ToggleBraces()
 
 " toggle the variable, if true then actually fix no outpu, else just output
 " some stuff
-command! ToggleBraceCheckFix :let b:fixBraces = !b:fixBraces
-let b:fixBraces = 1
+command! ToggleBraceCheckFix :let g:doBraces = !g:doBraces
+let g:doBraces = 1
 
 function! ToggleBraces()
     let l:coords = getcurpos()
     let l:line = coords[1]                    " saves the coords so you don't notice a thing
     let l:col = coords[2]
 
-    let l:old = b:fixBraces
-    let b:fixBraces = 1
+    let l:old = g:doBraces
+    let g:doBraces = 1
     let l:type = GetTypeBrace()
 
 
@@ -406,7 +402,7 @@ function! ToggleBraces()
 
     call CheckConsistantBrace()
 
-    let b:fixBraces = l:old
+    let g:doBraces = l:old
     call cursor(l:line, l:col)
 endfunction
 
@@ -417,11 +413,16 @@ function! RmExtraWhiteSpaces()
 endfunction
 
 function! CheckConsistantBrace()
-    " start at the top
-    normal gg
     let l:coords = getcurpos()
     let l:line = coords[1]                    " saves the coords so you don't notice a thing
     let l:col = coords[2]
+
+    if !exists("g:doBraces")
+        let g:doBraces = 0
+    endif
+
+    " start at the top
+    normal gg
     let l:m = @m              " temp var
     let l:type = GetTypeBrace()
 
@@ -434,7 +435,7 @@ function! CheckConsistantBrace()
     let l:failure = CheckBrace(l:braces, l:type)
 
     " if you want autofix
-    if b:fixBraces
+    if g:doBraces
         call FixBraces(l:failure, l:type)
     endif
 
@@ -463,7 +464,7 @@ function! GetBraceLines()
             endif
 
             " moves down so we don't get stuck on the last one
-            normal j
+            normal j0
         else
             let l:finding = 0
 
@@ -498,7 +499,7 @@ function! CheckBrace(braces, type)
         endif
 
         if l:cur !=# a:type
-            if !b:fixBraces
+            if !g:doBraces
                 echom "You have a problem [" . l:coord[0] . ", " . l:coord[1] . "]"
             endif
 
@@ -520,7 +521,7 @@ function! FixBraces(braces, type)
         if a:type " best to almond
             let l:offset = l:offset + 1
             " get the tab length, pastes before the {
-            normal muF)%^hv0"my`uild0"mP
+            normal mu%v0"my`ua"mpr{
         else " almond to best
             let l:offset = l:offset - 1
             normal kJ
@@ -570,7 +571,7 @@ inoremap ) )<C-\><C-O>:call GetType()<CR>
 " when \ is pressed runs processor
 "inoremap <leader>make <C-\><C-O>:call Process()<CR>
 "inoremap { {<CR>}<Esc>ko
-inoremap { {<CR>}<Esc>koaa
+inoremap { {<CR>}<Esc>ko
 inoremap <leader>out System.out.println(<ESC>
 
 "nnoremap <leader>r :so ~/.vimrc<CR> | :so ~/.vim/custom/vimrc_java.vim<CR>
