@@ -1,0 +1,6 @@
+make a refactor variable command
+try to make custom highlighting to be like are you sure you wanna change these things
+
+make import easier to expand, 
+    maybe import checks what is highlighted or pass in a register
+    make the import list in another file that can be writen to
