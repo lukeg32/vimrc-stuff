@@ -1,4 +1,4 @@
-*.sw
+*.sw*
 .vim/view/*
 .vim/sessions/*
 .vim/.netrwhist

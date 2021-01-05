@@ -128,6 +128,9 @@ nnoremap <leader>w 
 
 nnoremap H gT
 nnoremap L gt
+
+" ctrl-s for the win
+nnoremap <C-S> :w<CR>
 "nnoremap <C-S> :w<CR>
 nnoremap <leader>r :windo e! <bar> :windo so ~/.vimrc<CR>
 let g:sessions_dir = "~/.vim/sessions"
