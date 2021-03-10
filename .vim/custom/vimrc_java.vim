@@ -856,6 +856,12 @@ function! AddToMethods(newMethod, public)
 
      if a:public
         echom "public"
+
+        " stupid b:JPMIndex will exist even if i never set it
+        if (!exists("g:jpm[l:i][0]"))
+            call add(g:jpm[l:i], "PLACEHOLDER")
+        endif
+
         " make sure we don't have the placholder
         if g:jpm[l:i][0] ==# "PLACEHOLDER"
             let g:jpm[l:i][0] = a:newMethod
@@ -878,6 +884,11 @@ function! AddToConstruct(newConstructor, public)
      let l:i = GetJPCIndex()
 
      if a:public
+
+        if (!exists("g:jpc[l:i][0]"))
+            call add(g:jpc[l:i], "PLACEHOLDER")
+        endif
+
         " make sure we don't have the placholder
         if g:jpc[l:i][0] ==# "PLACEHOLDER"
             let g:jpc[l:i][0] = a:newConstructor

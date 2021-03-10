@@ -35,7 +35,7 @@ function! Trigger()
 endfunction
 
 
-
-
+inoremap <leader>s std::
+inoremap { {<CR>}<Esc>ko
 
 command! Tr :call Trigger()

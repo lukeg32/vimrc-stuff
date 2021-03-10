@@ -129,6 +129,10 @@ nnoremap <leader>w 
 nnoremap H gT
 nnoremap L gt
 
+nnoremap <leader>c 19j19k19k19j19j19k
+nnoremap <leader>u 38j38k38j38k
+nnoremap <leader>d 38k38j
+
 " ctrl-s for the win
 nnoremap <C-S> :w<CR>
 "nnoremap <C-S> :w<CR>
