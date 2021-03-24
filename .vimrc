@@ -23,6 +23,8 @@ set list
 set mouse=a
 set ignorecase smartcase
 
+set showcmd
+
 " VIDEO:
 " Provides tab-completion for all file related tasks also fuzzy
 set path+=**
@@ -42,7 +44,6 @@ command! MakeTags !ctags -R .
 " ^n for anything specified b the complete option
 " |netrw-browse-maps|
 
-set showcmd
 
 nnoremap <leader>html :-1read ~/.vim/skeletion/java.skel<CR>3jwf>a
 " folds
