@@ -49,6 +49,8 @@ set ignorecase smartcase
 
 set showcmd
 
+set so=2
+
 filetype plugin on
 set background=light
 
@@ -60,6 +62,7 @@ nnoremap nh :noh<CR>
 
 nnoremap H gT
 nnoremap L gt
+
 
 let g:sessions_dir = "~/.config/nvim/sessions"
 exec 'nnoremap <leader>S :mks! ' . v:this_session . '<CR>'
