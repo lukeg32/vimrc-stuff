@@ -39,7 +39,7 @@ set shiftwidth=4 expandtab smartindent
 "set spell!
 syntax on
 
-set foldmethod=indent
+" set foldmethod=indent
 
 set listchars=nbsp:~,tab:->,trail:-
 set list
@@ -58,7 +58,7 @@ set splitbelow
 set splitright
 
 nnoremap <leader>w 
-nnoremap nh :noh<CR>
+" nnoremap nh :noh<CR>
 
 nnoremap H gT
 nnoremap L gt
