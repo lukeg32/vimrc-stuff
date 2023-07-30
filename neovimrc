@@ -52,7 +52,7 @@ set showcmd
 set so=2
 
 filetype plugin on
-set background=light
+"set background=light
 
 set splitbelow
 set splitright
